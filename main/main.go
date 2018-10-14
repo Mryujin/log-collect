@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/Mryujin/log-collect/log"
 	"github.com/Mryujin/log-collect/core"
+	"github.com/Mryujin/log-collect/kafka"
 	"github.com/Mryujin/log-collect/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -37,6 +38,7 @@ func logCollectHandle(ctx *fasthttp.RequestCtx) {
 		processRegion(appLog, ipAddress)
 
 		// 将消息放到kafka中
+		
 
 		ctx.SetContentType("application/json")
 		ctx.Response.SetBody([]byte("{\"code\":0, \"msg\":\"success\"}"))
@@ -113,4 +115,33 @@ func processRegion(appLog *core.AppLog, ipAddress string) {
 		log.City = region.City
 		log.IpAddress = ipAddress
 	}
+}
+
+/**
+ * 发送消息
+ */
+func sendMessage(appLog *core.AppLog) {
+	kafka.SendMessage()
+	// public void sendMessage(AppLogEntity e) {
+	// 	//创建配置对象
+	// 	Properties props = new Properties();
+	// 	props.put("metadata.broker.list", "s202:9092");
+	// 	props.put("serializer.class", "kafka.serializer.StringEncoder");
+	// 	props.put("request.required.acks", "1");
+
+	// 	//创建生产者
+	// 	Producer<Integer, String> producer = new Producer<Integer, String>(new ProducerConfig(props));
+	// 	sendSingleLog(producer,Constants.TOPIC_APP_STARTUP,e.getAppStartupLogs());
+	// 	sendSingleLog(producer,Constants.TOPIC_APP_ERRROR,e.getAppErrorLogs());
+	// 	sendSingleLog(producer,Constants.TOPIC_APP_EVENT,e.getAppEventLogs());
+	// 	sendSingleLog(producer,Constants.TOPIC_APP_PAGE,e.getAppPageLogs());
+	// 	sendSingleLog(producer,Constants.TOPIC_APP_USAGE,e.getAppUsageLogs());
+
+	// 	//发送消息
+	// 	producer.close();
+	// }
+}
+
+func sendSingleMessage() {
+	
 }
