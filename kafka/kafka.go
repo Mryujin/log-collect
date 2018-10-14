@@ -4,6 +4,7 @@ import (
 	"time"
 	"github.com/Shopify/sarama"
 )
+
 var asyncProducer sarama.AsyncProducer
 
 func init() {

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/Mryujin/log-collect/log"
 	"github.com/Mryujin/log-collect/core"
 	"github.com/Mryujin/log-collect/kafka"
@@ -8,6 +9,13 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+const (
+	TOPIC_APP_STARTUP = "topic-app-startup"
+	TOPIC_APP_ERRROR = "topic-app-error"
+	TOPIC_APP_EVENT = "topic-app-event"
+	TOPIC_APP_USAGE = "topic-app-usage"
+	TOPIC_APP_PAGE = "topic-app-page"
+)
 /**
  * 收集日志程序
  */
@@ -38,7 +46,7 @@ func logCollectHandle(ctx *fasthttp.RequestCtx) {
 		processRegion(appLog, ipAddress)
 
 		// 将消息放到kafka中
-		
+		sendMessage(appLog)
 
 		ctx.SetContentType("application/json")
 		ctx.Response.SetBody([]byte("{\"code\":0, \"msg\":\"success\"}"))
@@ -90,6 +98,18 @@ func verifyTime(appLog *core.AppLog, diff int64) {
 		log.DeviceStyle = appLog.DeviceId
 	}
 
+	for _, log := range appLog.AppEventLogs {
+		log.CreatedAtMs += diff
+		log.AppId = appLog.AppId
+		log.DeviceId = appLog.DeviceId
+		log.TenantId = appLog.TenantId
+		log.AppVersion = appLog.AppVersion
+		log.AppChannel = appLog.AppChannel
+		log.AppPlatform = appLog.AppPlatform
+		log.OsType = appLog.OsType
+		log.DeviceStyle = appLog.DeviceId
+	}
+
 	// 错误日志
 	for _, log := range appLog.AppErrorLogs {
 		log.CreatedAtMs += diff
@@ -121,27 +141,33 @@ func processRegion(appLog *core.AppLog, ipAddress string) {
  * 发送消息
  */
 func sendMessage(appLog *core.AppLog) {
-	kafka.SendMessage()
-	// public void sendMessage(AppLogEntity e) {
-	// 	//创建配置对象
-	// 	Properties props = new Properties();
-	// 	props.put("metadata.broker.list", "s202:9092");
-	// 	props.put("serializer.class", "kafka.serializer.StringEncoder");
-	// 	props.put("request.required.acks", "1");
+	// 启动日志
+	for _, log := range appLog.AppStartUpLogs {
+		bytes,err := json.Marshal(log)
+		kafka.SendMessage(TOPIC_APP_STARTUP, string(bytes))
+	}
 
-	// 	//创建生产者
-	// 	Producer<Integer, String> producer = new Producer<Integer, String>(new ProducerConfig(props));
-	// 	sendSingleLog(producer,Constants.TOPIC_APP_STARTUP,e.getAppStartupLogs());
-	// 	sendSingleLog(producer,Constants.TOPIC_APP_ERRROR,e.getAppErrorLogs());
-	// 	sendSingleLog(producer,Constants.TOPIC_APP_EVENT,e.getAppEventLogs());
-	// 	sendSingleLog(producer,Constants.TOPIC_APP_PAGE,e.getAppPageLogs());
-	// 	sendSingleLog(producer,Constants.TOPIC_APP_USAGE,e.getAppUsageLogs());
+	// 事件日志
+	for _,log := range appLog.AppEventLogs {
+		bytes,err := json.Marshal(log)
+		kafka.SendMessage(TOPIC_APP_EVENT, string(bytes))
+	}
 
-	// 	//发送消息
-	// 	producer.close();
-	// }
-}
+	// 使用日志
+	for _, log := range appLog.AppUsageLogs {
+		bytes,err := json.Marshal(log)
+		kafka.SendMessage(TOPIC_APP_USAGE, string(bytes))
+	}
 
-func sendSingleMessage() {
-	
+	// 页面日志
+	for _, log := range appLog.AppPageLogs {
+		bytes,err := json.Marshal(log)
+		kafka.SendMessage(TOPIC_APP_PAGE, string(bytes))
+	}
+
+	// 错误日志
+	for _, log := range appLog.AppErrorLogs {
+		bytes,err := json.Marshal(log)
+		kafka.SendMessage(TOPIC_APP_ERRROR, string(bytes))
+	}
 }
