@@ -1,4 +1,4 @@
-package: log-collect
+package: github.com/Mryujin/log-collect
 import:
 - package: github.com/valyala/fasthttp
 - package: github.com/sirupsen/logrus

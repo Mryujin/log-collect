@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log-collect/log"
-	"log-collect/core"
-	"log-collect/utils"
+	"github.com/Mryujin/log-collect/log"
+	"github.com/Mryujin/log-collect/core"
+	"github.com/Mryujin/log-collect/utils"
 	"github.com/valyala/fasthttp"
 )
 

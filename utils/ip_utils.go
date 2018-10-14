@@ -4,7 +4,7 @@ import (
 	"net"
 	"strings"
 	"github.com/valyala/fasthttp"
-	"log-collect/log"
+	"github.com/Mryujin/log-collect/log"
 	geoip2 "github.com/oschwald/geoip2-golang"
 )
 
